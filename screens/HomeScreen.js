@@ -2,7 +2,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 
-export default function HomeScreen() {
+export default function HomeScreen({ onNavigate }) {
   return (
     <View style={styles.container}>
 
@@ -86,18 +86,24 @@ export default function HomeScreen() {
 
       {/* Nav bar */}
       <View style={styles.navbar}>
-        {[
-          { ico: '🏠', label: 'Home', active: true },
-          { ico: '📚', label: 'Lessons', active: false },
-          { ico: '🧩', label: 'Quiz', active: false },
-          { ico: '🦊', label: 'Hoot', active: false },
-          { ico: '👤', label: 'Profile', active: false },
-        ].map((item, i) => (
-          <TouchableOpacity key={i} style={[styles.navItem, item.active && styles.navItemActive]}>
-            <Text style={styles.navIco}>{item.ico}</Text>
-            <Text style={[styles.navLabel, item.active && styles.navLabelActive]}>{item.label}</Text>
-          </TouchableOpacity>
-        ))}
+   {[
+  { ico: '🏠', label: 'Home', screen: 'home' },
+  { ico: '📚', label: 'Lessons', screen: 'tracks' },
+  { ico: '🧩', label: 'Quiz', screen: 'quiz' },
+  { ico: '🦊', label: 'Hoot', screen: 'ai' },
+  { ico: '👤', label: 'Profile', screen: 'profile' },
+].map((item, i) => (
+  <TouchableOpacity
+    key={i}
+    style={[styles.navItem, item.screen === 'home' && styles.navItemActive]}
+    onPress={() => onNavigate && onNavigate(item.screen)}
+  >
+    <Text style={styles.navIco}>{item.ico}</Text>
+    <Text style={[styles.navLabel, item.screen === 'home' && styles.navLabelActive]}>
+      {item.label}
+    </Text>
+  </TouchableOpacity>
+))}
       </View>
 
     </View>

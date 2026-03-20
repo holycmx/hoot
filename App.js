@@ -1,13 +1,18 @@
 import { useState } from 'react';
 import HomeScreen from './screens/HomeScreen';
 import SplashScreen from './screens/SplashScreen';
+import TracksScreen from './screens/TracksScreen';
 
 export default function App() {
-  const [showSplash, setShowSplash] = useState(true);
+  const [screen, setScreen] = useState('splash');
 
-  if (showSplash) {
-    return <SplashScreen onFinish={() => setShowSplash(false)} />;
+  if (screen === 'splash') {
+    return <SplashScreen onFinish={() => setScreen('home')} />;
   }
 
-  return <HomeScreen />;
+  if (screen === 'tracks') {
+    return <TracksScreen onSelectLesson={(track, lesson) => console.log(track, lesson)} />;
+  }
+
+  return <HomeScreen onNavigate={setScreen} />;
 }
