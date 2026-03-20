@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import HomeScreen from './screens/HomeScreen';
 import SplashScreen from './screens/SplashScreen';
 
 export default function App() {
@@ -9,14 +9,5 @@ export default function App() {
     return <SplashScreen onFinish={() => setShowSplash(false)} />;
   }
 
-  return (
-    <View style={styles.container} />
-  );
+  return <HomeScreen />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F7FF',
-  },
-});
