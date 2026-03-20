@@ -1,27 +1,11 @@
+import { CONTENT } from '../constants/content';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 
-const UNIT1 = {
-  vocab: {
-    words: [
-      { word: 'Girl', phonetic: '/ɡɜːrl/', korean: '여자아이', example: '"She is a girl."' },
-      { word: 'Boy', phonetic: '/bɔɪ/', korean: '남자아이', example: '"He is a boy."' },
-      { word: 'Teacher', phonetic: '/ˈtiːtʃər/', korean: '선생님', example: '"She is a teacher."' },
-      { word: 'Apple', phonetic: '/ˈæpəl/', korean: '사과', example: '"I eat an apple."' },
-      { word: 'Dog', phonetic: '/dɒɡ/', korean: '개', example: '"It is a dog."' },
-    ],
-    exercises: [
-      { type: 'mc', prompt: 'Which word means 선생님?', options: ['Artist', 'Teacher', 'Student', 'Girl'], answer: 1, tip: '"Teacher" = 선생님 ✓' },
-      { type: 'mc', prompt: 'Which is correct?', options: ['a apple', 'an apple', 'a owl', 'an dog'], answer: 1, tip: 'Vowel sounds use "an" ✓' },
-      { type: 'mc', prompt: 'What is the English word for 개?', options: ['Cat', 'Bird', 'Dog', 'Fox'], answer: 2, tip: '"Dog" = 개 ✓' },
-    ],
-  },
-};
-
 export default function LessonScreen({ track = 'vocab', onBack }) {
-  const data = UNIT1[track] || UNIT1.vocab;
+  const data = CONTENT.units[0].tracks[track] || CONTENT.units[0].tracks.vocab;
   const totalSteps = data.words.length + data.exercises.length;
   const [step, setStep] = useState(0);
   const [xp, setXp] = useState(0);
