@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
@@ -12,13 +13,58 @@ const UNIT1 = {
       { word: 'Dog', phonetic: '/dɒɡ/', korean: '개', example: '"It is a dog."' },
     ],
     exercises: [
-      { type: 'mc', prompt: 'Which word means 선생님?', options: ['Artist', 'Teacher', 'Student', 'Girl'], answer: 1, tip: 'Teacher = 선생님' },
-      { type: 'mc', prompt: 'Which is correct?', options: ['a apple', 'an apple', 'a owl', 'an dog'], answer: 1, tip: 'Vowel sounds use "an"' },
+      { type: 'mc', prompt: 'Which word means 선생님?', options: ['Artist', 'Teacher', 'Student', 'Girl'], answer: 1, tip: '"Teacher" = 선생님 ✓' },
+      { type: 'mc', prompt: 'Which is correct?', options: ['a apple', 'an apple', 'a owl', 'an dog'], answer: 1, tip: 'Vowel sounds use "an" ✓' },
+      { type: 'mc', prompt: 'What is the English word for 개?', options: ['Cat', 'Bird', 'Dog', 'Fox'], answer: 2, tip: '"Dog" = 개 ✓' },
     ],
   },
 };
 
 export default function LessonScreen({ track = 'vocab', onBack }) {
+  const data = UNIT1[track] || UNIT1.vocab;
+  const totalSteps = data.words.length + data.exercises.length;
+  const [step, setStep] = useState(0);
+  const [xp, setXp] = useState(0);
+  const [answered, setAnswered] = useState(false);
+  const [chosen, setChosen] = useState(null);
+  const [complete, setComplete] = useState(false);
+
+  const isWordStep = step < data.words.length;
+  const exIndex = step - data.words.length;
+  const progress = step / totalSteps;
+
+  function handleAnswer(i) {
+    if (answered) return;
+    setChosen(i);
+    setAnswered(true);
+    if (i === data.exercises[exIndex].answer) {
+      setXp(x => x + 10);
+    }
+  }
+
+  function handleNext() {
+    if (step + 1 >= totalSteps) {
+      setComplete(true);
+    } else {
+      setStep(s => s + 1);
+      setAnswered(false);
+      setChosen(null);
+    }
+  }
+
+  if (complete) {
+    return (
+      <View style={styles.completeScreen}>
+        <Text style={styles.completeFox}>🦊</Text>
+        <Text style={styles.completeTitle}>Lesson Complete!</Text>
+        <Text style={styles.completeSub}>You earned {xp} XP! Great work 🎉</Text>
+        <TouchableOpacity style={styles.completeBtn} onPress={onBack}>
+          <Text style={styles.completeBtnTxt}>Back to Tracks →</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
 
@@ -32,61 +78,75 @@ export default function LessonScreen({ track = 'vocab', onBack }) {
           <Text style={styles.headerSub}>Vocabulary · Level 1 — Cub</Text>
         </View>
         <View style={styles.xpTag}>
-          <Text style={styles.xpTxt}>0 XP</Text>
+          <Text style={styles.xpTxt}>{xp} XP</Text>
         </View>
       </View>
 
       {/* Progress bar */}
       <View style={styles.progBg}>
-        <View style={[styles.progFill, { width: '20%', backgroundColor: colors.vocab }]} />
+        <View style={[styles.progFill, { width: `${progress * 100}%` }]} />
       </View>
 
       <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
 
-        {/* Vocab intro */}
-        <View style={styles.introCard}>
-          <Text style={styles.introLbl}>📖 Vocabulary</Text>
-          <Text style={styles.introTitle}>Nouns — People, Places & Things</Text>
-          <Text style={styles.introSub}>Learn 5 key words. Tap each card to study it.</Text>
-        </View>
-
-        {/* Word cards */}
-        {UNIT1.vocab.words.map((w, i) => (
-          <View key={i} style={styles.wordCard}>
-            <Text style={styles.wordText}>{w.word}</Text>
-            <Text style={styles.wordPhonetic}>{w.phonetic}</Text>
-            <Text style={styles.wordKorean}>{w.korean}</Text>
-            <Text style={styles.wordExample}>{w.example}</Text>
+        {isWordStep ? (
+          // Word card
+          <View>
+            <Text style={styles.stepLbl}>📖 Word {step + 1} of {data.words.length}</Text>
+            <View style={styles.wordCard}>
+              <Text style={styles.wordText}>{data.words[step].word}</Text>
+              <Text style={styles.wordPhonetic}>{data.words[step].phonetic}</Text>
+              <Text style={styles.wordKorean}>{data.words[step].korean}</Text>
+              <Text style={styles.wordExample}>{data.words[step].example}</Text>
+            </View>
+            <TouchableOpacity style={styles.nextBtn} onPress={handleNext}>
+              <Text style={styles.nextBtnTxt}>Next →</Text>
+            </TouchableOpacity>
           </View>
-        ))}
+        ) : (
+          // Exercise
+          <View>
+            <Text style={styles.stepLbl}>🧩 Exercise {exIndex + 1} of {data.exercises.length}</Text>
+            <Text style={styles.exPrompt}>{data.exercises[exIndex].prompt}</Text>
+            <View style={styles.exOpts}>
+              {data.exercises[exIndex].options.map((opt, i) => {
+                const isCorrect = i === data.exercises[exIndex].answer;
+                const isChosen = i === chosen;
+                let optStyle = styles.exOpt;
+                if (answered && isCorrect) optStyle = styles.exOptCorrect;
+                else if (answered && isChosen) optStyle = styles.exOptWrong;
+                return (
+                  <TouchableOpacity key={i} style={optStyle} onPress={() => handleAnswer(i)}>
+                    <View style={[styles.exOptLetter, answered && isCorrect && styles.exOptLetterCorrect, answered && isChosen && !isCorrect && styles.exOptLetterWrong]}>
+                      <Text style={styles.exOptLetterTxt}>{'ABCD'[i]}</Text>
+                    </View>
+                    <Text style={styles.exOptTxt}>{opt}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
 
-        {/* Exercises */}
-        <Text style={styles.exTitle}>Exercises</Text>
-        {UNIT1.vocab.exercises.map((ex, i) => (
-          <ExerciseCard key={i} ex={ex} index={i} />
-        ))}
+            {answered && (
+              <View style={chosen === data.exercises[exIndex].answer ? styles.fbOk : styles.fbBad}>
+                <Text style={styles.fbTxt}>
+                  {chosen === data.exercises[exIndex].answer ? '✓ ' : '✗ '}
+                  {data.exercises[exIndex].tip}
+                </Text>
+              </View>
+            )}
+
+            {answered && (
+              <TouchableOpacity style={styles.nextBtn} onPress={handleNext}>
+                <Text style={styles.nextBtnTxt}>
+                  {exIndex + 1 >= data.exercises.length ? 'Finish! 🎉' : 'Next →'}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
 
         <View style={{ height: 40 }} />
       </ScrollView>
-    </View>
-  );
-}
-
-function ExerciseCard({ ex, index }) {
-  return (
-    <View style={styles.exCard}>
-      <Text style={styles.exNum}>Exercise {index + 1}</Text>
-      <Text style={styles.exPrompt}>{ex.prompt}</Text>
-      <View style={styles.exOpts}>
-        {ex.options.map((opt, i) => (
-          <TouchableOpacity key={i} style={styles.exOpt}>
-            <View style={styles.exOptLetter}>
-              <Text style={styles.exOptLetterTxt}>{'ABCD'[i]}</Text>
-            </View>
-            <Text style={styles.exOptTxt}>{opt}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
     </View>
   );
 }
@@ -102,24 +162,33 @@ const styles = StyleSheet.create({
   xpTag: { backgroundColor: colors.goldSoft, borderRadius: 20, paddingHorizontal: 13, paddingVertical: 5 },
   xpTxt: { fontSize: 12, fontWeight: '800', color: colors.goldDark },
   progBg: { height: 6, backgroundColor: colors.border },
-  progFill: { height: 6, borderRadius: 3 },
+  progFill: { height: 6, backgroundColor: colors.vocab, borderRadius: 3 },
   body: { flex: 1, padding: 20 },
-  introCard: { backgroundColor: colors.vocabSoft, borderRadius: 18, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(124,77,255,0.12)' },
-  introLbl: { fontSize: 11, fontWeight: '800', color: colors.vocab, letterSpacing: 0.7, textTransform: 'uppercase', marginBottom: 4 },
-  introTitle: { fontSize: 17, fontWeight: '900', color: colors.ink, letterSpacing: -0.3 },
-  introSub: { fontSize: 13, fontWeight: '500', color: colors.ink2, marginTop: 4 },
-  wordCard: { backgroundColor: colors.bg, borderRadius: 20, padding: 20, marginBottom: 12, borderWidth: 1.5, borderColor: colors.border, alignItems: 'center', shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 8, elevation: 2 },
-  wordText: { fontSize: 40, fontWeight: '900', color: colors.vocab, letterSpacing: -0.5, marginBottom: 4 },
-  wordPhonetic: { fontSize: 14, fontWeight: '500', color: colors.ink3, marginBottom: 8 },
-  wordKorean: { fontSize: 20, fontWeight: '800', color: colors.ink, marginBottom: 6 },
+  stepLbl: { fontSize: 11, fontWeight: '800', color: colors.ink3, letterSpacing: 0.7, textTransform: 'uppercase', marginBottom: 12 },
+  wordCard: { backgroundColor: colors.vocabSoft, borderRadius: 22, padding: 28, marginBottom: 20, alignItems: 'center', borderWidth: 1.5, borderColor: 'rgba(124,77,255,0.14)' },
+  wordText: { fontSize: 44, fontWeight: '900', color: colors.vocab, letterSpacing: -0.5, marginBottom: 4 },
+  wordPhonetic: { fontSize: 14, fontWeight: '500', color: colors.ink3, marginBottom: 10 },
+  wordKorean: { fontSize: 22, fontWeight: '800', color: colors.ink, marginBottom: 6 },
   wordExample: { fontSize: 13, fontWeight: '500', color: colors.ink2, fontStyle: 'italic' },
-  exTitle: { fontSize: 17, fontWeight: '800', color: colors.ink, marginBottom: 12, marginTop: 8 },
-  exCard: { backgroundColor: colors.bg, borderRadius: 18, padding: 16, marginBottom: 12, borderWidth: 1.5, borderColor: colors.border },
-  exNum: { fontSize: 11, fontWeight: '800', color: colors.ink3, letterSpacing: 0.7, textTransform: 'uppercase', marginBottom: 8 },
-  exPrompt: { fontSize: 18, fontWeight: '800', color: colors.ink, marginBottom: 16, letterSpacing: -0.3 },
-  exOpts: { gap: 10 },
-  exOpt: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.bg2, borderRadius: 14, padding: 14, borderWidth: 2, borderColor: colors.border },
+  exPrompt: { fontSize: 20, fontWeight: '800', color: colors.ink, marginBottom: 20, letterSpacing: -0.3, lineHeight: 28 },
+  exOpts: { gap: 10, marginBottom: 14 },
+  exOpt: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.bg, borderRadius: 16, padding: 14, borderWidth: 2, borderColor: colors.border },
+  exOptCorrect: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.mintSoft, borderRadius: 16, padding: 14, borderWidth: 2, borderColor: colors.mint },
+  exOptWrong: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.coralSoft, borderRadius: 16, padding: 14, borderWidth: 2, borderColor: colors.coral },
   exOptLetter: { width: 28, height: 28, borderRadius: 8, backgroundColor: colors.border, alignItems: 'center', justifyContent: 'center' },
+  exOptLetterCorrect: { backgroundColor: colors.mint },
+  exOptLetterWrong: { backgroundColor: colors.coral },
   exOptLetterTxt: { fontSize: 11, fontWeight: '800', color: colors.ink2 },
   exOptTxt: { fontSize: 14, fontWeight: '700', color: colors.ink },
+  fbOk: { backgroundColor: colors.mintSoft, borderRadius: 14, padding: 14, marginBottom: 14 },
+  fbBad: { backgroundColor: colors.coralSoft, borderRadius: 14, padding: 14, marginBottom: 14 },
+  fbTxt: { fontSize: 13, fontWeight: '700', color: colors.ink },
+  nextBtn: { backgroundColor: colors.vocab, borderRadius: 16, padding: 16, alignItems: 'center' },
+  nextBtnTxt: { fontSize: 15, fontWeight: '800', color: '#fff' },
+  completeScreen: { flex: 1, backgroundColor: colors.bg2, alignItems: 'center', justifyContent: 'center', padding: 32 },
+  completeFox: { fontSize: 80, marginBottom: 20 },
+  completeTitle: { fontSize: 28, fontWeight: '900', color: colors.ink, letterSpacing: -0.5, marginBottom: 8 },
+  completeSub: { fontSize: 16, fontWeight: '500', color: colors.ink2, marginBottom: 32, textAlign: 'center' },
+  completeBtn: { backgroundColor: colors.primary, borderRadius: 16, padding: 16, paddingHorizontal: 32 },
+  completeBtnTxt: { fontSize: 16, fontWeight: '800', color: '#fff' },
 });
