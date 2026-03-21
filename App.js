@@ -1,3 +1,4 @@
+import QuizScreen from './screens/QuizScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import { useEffect, useState } from 'react';
 import HomeScreen from './screens/HomeScreen';
@@ -43,7 +44,12 @@ export default function App() {
       setScreen('lesson');
     }} />
   );
-
+if (screen === 'quiz') return (
+    <QuizScreen
+      onNavigate={setScreen}
+      lessonsCompleted={appState.lessonsCompleted}
+    />
+  );
 if (screen === 'profile') return (
     <ProfileScreen
       onNavigate={setScreen}
