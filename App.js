@@ -35,11 +35,13 @@ export default function App() {
   if (screen === 'onboarding') return <OnboardingScreen onFinish={handleOnboardingFinish} />;
   if (screen === 'lesson') return <LessonScreen track={lessonTrack} onBack={() => setScreen('tracks')} />;
   if (screen === 'tracks') return (
-    <TracksScreen onSelectLesson={(track) => {
-      setLessonTrack(track);
+<TracksScreen
+  onNavigate={setScreen}
+  onSelectLesson={(track) => {
+    setLessonTrack(track);
       setScreen('lesson');
     }} />
   );
 
-  return <HomeScreen onNavigate={setScreen} />;
+  return <HomeScreen onNavigate={setScreen} userName={appState.user?.enName} />;
 }

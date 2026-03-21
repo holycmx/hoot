@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
-  KeyboardAvoidingView, Platform, ScrollView,
+  Animated, KeyboardAvoidingView, Platform, ScrollView,
   StyleSheet, Text, TextInput, TouchableOpacity, View
 } from 'react-native';
 import { getNextQuestion, calculateLevel } from '../constants/levelTest';
@@ -13,6 +13,8 @@ export default function OnboardingScreen({ onFinish }) {
   const [enName, setEnName] = useState('');
   const [ageGroup, setAgeGroup] = useState('');
   const [goal, setGoal] = useState('');
+  const celebScale = useRef(new Animated.Value(0)).current;
+  const [showCeleb, setShowCeleb] = useState(false);
 
   // Level test state
   const [testHistory, setTestHistory] = useState([]);
@@ -22,7 +24,7 @@ export default function OnboardingScreen({ onFinish }) {
   const [testAnswered, setTestAnswered] = useState(false);
 
   function startTest() {
-    const first = getNextQuestion([], []);
+    const first = getNextQuestion([], [], ageGroup);
     setCurrentQ(first);
     setUsedIds([first.id]);
     setStep(3);
@@ -32,9 +34,21 @@ export default function OnboardingScreen({ onFinish }) {
     if (testAnswered) return;
     setChosen(i);
     setTestAnswered(true);
+    if (i === currentQ.a) {
+      setShowCeleb(true);
+      celebScale.setValue(0);
+      Animated.spring(celebScale, {
+        toValue: 1,
+        tension: 50,
+        friction: 5,
+        useNativeDriver: true,
+      }).start(() => {
+        setTimeout(() => setShowCeleb(false), 1200);
+      });
+    }
   }
 
-  function handleTestNext() {
+function handleTestNext() {
     const correct = chosen === currentQ.a;
     const newHistory = [...testHistory, {
       id: currentQ.id,
@@ -48,7 +62,7 @@ export default function OnboardingScreen({ onFinish }) {
       return;
     }
 
-    const next = getNextQuestion(newHistory, usedIds);
+    const next = getNextQuestion(newHistory, usedIds, ageGroup);
     if (!next) { setStep(4); return; }
     setCurrentQ(next);
     setUsedIds(ids => [...ids, next.id]);
@@ -162,6 +176,11 @@ export default function OnboardingScreen({ onFinish }) {
                 );
               })}
             </View>
+            {showCeleb && (
+              <Animated.View style={[styles.celeb, { transform: [{ scale: celebScale }] }]}>
+                <Text style={styles.celebTxt}>⭐ Correct! +10 XP</Text>
+              </Animated.View>
+            )}
             {testAnswered && (
               <TouchableOpacity style={styles.btn} onPress={handleTestNext}>
                 <Text style={styles.btnTxt}>
@@ -212,7 +231,8 @@ export default function OnboardingScreen({ onFinish }) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create({celeb: { backgroundColor: colors.goldSoft, borderRadius: 16, padding: 14, alignItems: 'center', marginTop: 12, borderWidth: 1.5, borderColor: colors.gold },
+  celebTxt: { fontSize: 16, fontWeight: '800', color: colors.goldDark },
   container: { flex: 1, backgroundColor: colors.bg },
   progress: { paddingTop: 56, paddingHorizontal: 24, flexDirection: 'row', gap: 6 },
   dot: { flex: 1, height: 4, borderRadius: 2, backgroundColor: colors.border },

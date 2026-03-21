@@ -2,8 +2,8 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 
-export default function HomeScreen({ onNavigate }) {
-  return (
+export default function HomeScreen({ onNavigate, userName }) {
+return (
     <View style={styles.container}>
 
       {/* Header */}
@@ -14,8 +14,8 @@ export default function HomeScreen({ onNavigate }) {
               <Text style={styles.avatarText}>🦊</Text>
             </View>
             <View>
-              <Text style={styles.greeting}>GOOD MORNING</Text>
-              <Text style={styles.name}>Hoot Learner</Text>
+              <Text style={styles.greeting}>{new Date().getHours() < 12 ? 'GOOD MORNING' : new Date().getHours() < 17 ? 'GOOD AFTERNOON' : 'GOOD EVENING'}</Text>
+              <Text style={styles.name}>{userName || 'Learner'}</Text>
             </View>
           </View>
           <View style={styles.bell}>

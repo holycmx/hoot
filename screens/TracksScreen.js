@@ -1,6 +1,5 @@
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
 
 const TRACKS = [
   {
@@ -57,7 +56,7 @@ const TRACKS = [
   },
 ];
 
-export default function TracksScreen({ onSelectLesson }) {
+export default function TracksScreen({ onSelectLesson, onNavigate }) {
   return (
     <View style={styles.container}>
 
@@ -81,6 +80,28 @@ export default function TracksScreen({ onSelectLesson }) {
         <View style={{ height: 32 }} />
       </ScrollView>
 
+      {/* Nav bar — OUTSIDE ScrollView, INSIDE container */}
+      <View style={styles.navbar}>
+        {[
+          { ico: '🏠', label: 'Home',    screen: 'home' },
+          { ico: '📚', label: 'Lessons', screen: 'tracks' },
+          { ico: '🧩', label: 'Quiz',    screen: 'quiz' },
+          { ico: '🦊', label: 'Hoot',    screen: 'ai' },
+          { ico: '👤', label: 'Profile', screen: 'profile' },
+        ].map((item, i) => (
+          <TouchableOpacity
+            key={i}
+            style={[styles.navItem, item.screen === 'tracks' && styles.navItemActive]}
+            onPress={() => onNavigate && onNavigate(item.screen)}
+          >
+            <Text style={styles.navIco}>{item.ico}</Text>
+            <Text style={[styles.navLabel, item.screen === 'tracks' && styles.navLabelActive]}>
+              {item.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
     </View>
   );
 }
@@ -96,17 +117,13 @@ function TrackCard({ track, onSelectLesson }) {
           <Text style={styles.trackName}>{track.name}</Text>
           <Text style={styles.trackDesc}>{track.desc}</Text>
         </View>
-        <Text style={[styles.trackProgress, { color: track.accent }]}>
-          1/10
-        </Text>
+        <Text style={[styles.trackProgress, { color: track.accent }]}>1/10</Text>
       </View>
 
-      {/* Progress bar */}
       <View style={styles.trackProgBg}>
         <View style={[styles.trackProgFill, { width: `${track.progress * 100}%`, backgroundColor: track.accent }]} />
       </View>
 
-      {/* Lessons */}
       <View style={styles.lessonList}>
         {track.lessons.map(lesson => (
           <TouchableOpacity
@@ -161,4 +178,10 @@ const styles = StyleSheet.create({
   lessonTitle: { fontSize: 13, fontWeight: '700', color: colors.ink },
   lessonSub: { fontSize: 11, fontWeight: '500', color: colors.ink3, marginTop: 1 },
   lessonStatus: { fontSize: 12 },
+  navbar: { flexDirection: 'row', backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: colors.border, paddingBottom: 20, paddingTop: 8 },
+  navItem: { flex: 1, alignItems: 'center', gap: 3, paddingVertical: 6, borderRadius: 14 },
+  navItemActive: { backgroundColor: colors.primarySoft },
+  navIco: { fontSize: 22 },
+  navLabel: { fontSize: 10, fontWeight: '700', color: colors.ink3 },
+  navLabelActive: { color: colors.primary },
 });

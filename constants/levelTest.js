@@ -132,36 +132,46 @@ export const QUESTION_POOL = [
 
 // ── ADAPTIVE ENGINE ──
 // Returns the next question ID based on history
-export function getNextQuestion(history, usedIds) {
+export function getNextQuestion(history, usedIds, ageGroup = '9-13') {
   const lastEntry = history[history.length - 1];
+
+  // Cap difficulty based on age
+  const ageCap = {
+    '5-8':   ['easy'],
+    '9-13':  ['easy', 'medium'],
+    '14-18': ['easy', 'medium', 'hard'],
+  };
+  const allowed = ageCap[ageGroup] || ['easy', 'medium'];
 
   let targetDifficulty;
 
   if (!lastEntry) {
-    // Start on medium
-    targetDifficulty = 'medium';
+    // Start: young kids on easy, older on medium
+    targetDifficulty = ageGroup === '5-8' ? 'easy' : 'medium';
   } else if (lastEntry.correct) {
-    // Got it right → go harder
     const up = { easy: 'medium', medium: 'hard', hard: 'hard' };
     targetDifficulty = up[lastEntry.difficulty];
   } else {
-    // Got it wrong → go easier
     const down = { hard: 'medium', medium: 'easy', easy: 'easy' };
     targetDifficulty = down[lastEntry.difficulty];
   }
 
-  // Pick unused question at target difficulty
+  // Clamp to age cap
+  if (!allowed.includes(targetDifficulty)) {
+    targetDifficulty = allowed[allowed.length - 1];
+  }
+
   const candidates = QUESTION_POOL.filter(
     q => q.difficulty === targetDifficulty && !usedIds.includes(q.id)
   );
 
-  // If no candidates at target difficulty, try any unused
   if (candidates.length === 0) {
-    const any = QUESTION_POOL.filter(q => !usedIds.includes(q.id));
+    const any = QUESTION_POOL.filter(
+      q => allowed.includes(q.difficulty) && !usedIds.includes(q.id)
+    );
     return any[0] || null;
   }
 
-  // Pick randomly from candidates
   return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
