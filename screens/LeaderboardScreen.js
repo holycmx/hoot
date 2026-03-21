@@ -23,7 +23,7 @@ const DUMMY_USERS = [
 ];
 
 const GEO_TABS = ['🏘️ Gimpo', '🗺️ Gyeonggi', '🇰🇷 Korea', '🌏 Global'];
-const TIME_TABS = ['🔥 This Week', '⭐ All Time'];
+const TIME_TABS = ['🔥 Weekly', '⭐ All Time'];
 const AGE_TABS  = ['All Ages', '5–8', '9–13', '14–18'];
 
 const LEVEL_NAMES = { beginner: 'Cub', elementary: 'Explorer', intermediate: 'Adventurer' };
@@ -249,9 +249,9 @@ const styles = StyleSheet.create({
   headerSub: { fontSize: 13, fontWeight: '500', color: colors.ink2, marginTop: 2 },
   filters: { paddingHorizontal: 16, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: colors.border },
   filterRow: { marginBottom: 6 },
-  chip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, backgroundColor: colors.bg2, borderWidth: 1.5, borderColor: colors.border, marginRight: 8 },
+  chip: { paddingHorizontal: 10, paddingVertical: 7, borderRadius: 20, backgroundColor: colors.bg2, borderWidth: 1.5, borderColor: colors.border, marginRight: 8 },
   chipActive: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
-  chipTxt: { fontSize: 12, fontWeight: '700', color: colors.ink2 },
+  chipTxt: { fontSize: 11, fontWeight: '700', color: colors.ink2 },
   chipTxtActive: { color: colors.primary },
   body: { flex: 1 },
   podiumWrap: { flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-end', paddingHorizontal: 20, paddingTop: 24, paddingBottom: 8, gap: 8 },
