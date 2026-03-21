@@ -1,6 +1,5 @@
 import { supabase } from "./supabase";
 
-// ── Submit XP after a lesson or quiz ──────────────────────────────
 export async function submitXP(params: {
   source: "lesson" | "quiz";
   correct_answers: number;
@@ -22,10 +21,9 @@ export async function submitXP(params: {
       body: JSON.stringify(params),
     }
   );
-  return res.json(); // returns { xp_awarded, new_total }
+  return res.json();
 }
 
-// ── Fetch leaderboard ─────────────────────────────────────────────
 export async function fetchLeaderboard(params: {
   geo_tier: "town" | "province" | "national" | "global";
   geo_value?: string;
@@ -51,5 +49,5 @@ export async function fetchLeaderboard(params: {
       },
     }
   );
-  return res.json(); // returns { leaderboard: [{ rank, name, xp, ... }] }
+  return res.json();
 }
