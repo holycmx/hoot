@@ -1,3 +1,4 @@
+import ProfileScreen from './screens/ProfileScreen';
 import { useEffect, useState } from 'react';
 import HomeScreen from './screens/HomeScreen';
 import LessonScreen from './screens/LessonScreen';
@@ -41,6 +42,18 @@ export default function App() {
     setLessonTrack(track);
       setScreen('lesson');
     }} />
+  );
+
+if (screen === 'profile') return (
+    <ProfileScreen
+      onNavigate={setScreen}
+      userName={appState.user?.enName}
+      userLevel={appState.user?.level}
+      xp={appState.xp}
+      streak={appState.streak}
+      wordsLearned={appState.wordsLearned}
+      lessonsCompleted={appState.lessonsCompleted?.length}
+    />
   );
 
   return <HomeScreen onNavigate={setScreen} userName={appState.user?.enName} />;
