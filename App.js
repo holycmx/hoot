@@ -1,3 +1,4 @@
+import LeaderboardScreen from './screens/LeaderboardScreen';
 import QuizScreen from './screens/QuizScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import { useEffect, useState } from 'react';
@@ -44,6 +45,15 @@ export default function App() {
       setScreen('lesson');
     }} />
   );
+  if (screen === 'leaderboard') {
+  console.log('navigating to leaderboard');
+  return (
+    <LeaderboardScreen
+      onNavigate={setScreen}
+      userName={appState.user?.enName}
+    />
+  );
+}
 if (screen === 'quiz') return (
     <QuizScreen
       onNavigate={setScreen}
