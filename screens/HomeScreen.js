@@ -90,7 +90,7 @@ return (
   { ico: '🏠', label: 'Home', screen: 'home' },
   { ico: '📚', label: 'Lessons', screen: 'tracks' },
   { ico: '🧩', label: 'Quiz', screen: 'quiz' },
-  { ico: '🦊', label: 'Hoot', screen: 'ai' },
+  { ico: '🏆', label: 'Ranks', screen: 'leaderboard' },
   { ico: '👤', label: 'Profile', screen: 'profile' },
 ].map((item, i) => (
   <TouchableOpacity
